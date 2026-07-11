@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>易经占卜 · 问道天机</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1208;
+    --paper: #f5ead8;
+    --gold: #c9952a;
+    --gold-light: #e8c56a;
+    --red: #8b2020;
+    --shadow: rgba(26,18,8,0.3);
+    --mist: rgba(245,234,216,0.85);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--ink);
+    color: var(--ink);
+    font-family: 'Noto Serif SC', serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background */
+  .bg {
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 80% at 20% 50%, #2a1a08 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 80% 30%, #1a0a02 0%, transparent 55%),
+      linear-gradient(160deg, #0d0a05 0%, #1e140a 40%, #0a0705 100%);
+  }
+
+  .bg::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.6;
+  }
+
+  /* Floating particles */
+  .particles { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+  .particle {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: var(--gold);
+    border-radius: 50%;
+    opacity: 0;
+    animation: float-particle linear infinite;
+  }
+
+  @keyframes float-particle {
+    0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.3; }
+    100% { transform: translateY(-10vh) translateX(var(--drift)); opacity: 0; }
+  }
+
+  /* Main container */
+  .container {
+    position: relative; z-index: 2;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 40px 0 50px;
+    animation: fade-down 1.2s ease both;
+  }
+
+  .header-symbol {
+    font-size: 3rem;
+    color: var(--gold);
+    letter-spacing: 2rem;
+    margin-bottom: 16px;
+    text-shadow: 0 0 30px rgba(201,149,42,0.5);
+    display: block;
+    animation: glow-pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% { text-shadow: 0 0 20px rgba(201,149,42,0.4); }
+    50% { text-shadow: 0 0 50px rgba(201,149,42,0.8), 0 0 80px rgba(201,149,42,0.3); }
+  }
+
+  .header h1 {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: clamp(2.2rem, 6vw, 3.5rem);
+    color: var(--gold-light);
+    letter-spacing: 0.3em;
+    line-height: 1.2;
+    text-shadow: 0 2px 20px rgba(201,149,42,0.4);
+  }
+
+  .header-sub {
+    margin-top: 12px;
+    font-size: 0.85rem;
+    color: rgba(201,149,42,0.6);
+    letter-spacing: 0.5em;
+    font-weight: 300;
+  }
+
+  .divider {
+    display: flex; align-items: center; gap: 16px;
+    margin: 20px auto;
+    max-width: 300px;
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .divider span {
+    color: var(--gold);
+    font-size: 1.2rem;
+  }
+
+  /* Question card */
+  .question-card {
+    background: rgba(245,234,216,0.06);
+    border: 1px solid rgba(201,149,42,0.25);
+    border-radius: 4px;
+    padding: 40px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+    animation: fade-up 1s ease 0.3s both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .question-card::before {
+    content: '問';
+    position: absolute;
+    right: 20px; top: 10px;
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 8rem;
+    color: rgba(201,149,42,0.06);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .question-label {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 1rem;
+    color: var(--gold);
+    letter-spacing: 0.3em;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .question-label::after {
+    content: ''; flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(201,149,42,0.4), transparent);
+  }
+
+  textarea {
+    width: 100%;
+    background: rgba(245,234,216,0.04);
+    border: 1px solid rgba(201,149,42,0.2);
+    border-radius: 3px;
+    color: var(--paper);
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    padding: 18px 20px;
+    resize: none;
+    height: 100px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    outline: none;
+  }
+
+  textarea::placeholder { color: rgba(245,234,216,0.25); }
+  textarea:focus {
+    border-color: rgba(201,149,42,0.5);
+    box-shadow: 0 0 20px rgba(201,149,42,0.1);
+  }
+
+  /* Button */
+  .btn-cast {
+    display: block;
+    width: 100%;
+    margin-top: 24px;
+    padding: 18px;
+    background: linear-gradient(135deg, #7a3f0a, #c9952a, #7a3f0a);
+    background-size: 200% 200%;
+    border: none;
+    border-radius: 3px;
+    color: #fdf3e0;
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 1.2rem;
+    letter-spacing: 0.5em;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    animation: gradient-shift 4s ease infinite;
+  }
+
+  @keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  .btn-cast:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(201,149,42,0.3);
+  }
+  .btn-cast:active { transform: translateY(0); }
+  .btn-cast:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* Casting animation */
+  .casting-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(10,7,4,0.95);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 30px;
+  }
+  .casting-overlay.active { display: flex; }
+
+  .yarrow-container {
+    display: flex; gap: 8px; align-items: flex-end;
+    height: 120px;
+  }
+
+  .yarrow {
+    width: 3px;
+    background: linear-gradient(180deg, var(--gold-light), var(--gold));
+    border-radius: 2px;
+    transform-origin: bottom center;
+    animation: yarrow-wave 1.5s ease-in-out infinite;
+    box-shadow: 0 0 8px rgba(201,149,42,0.5);
+  }
+
+  @keyframes yarrow-wave {
+    0%, 100% { transform: scaleY(0.3) rotate(-3deg); opacity: 0.4; }
+    50% { transform: scaleY(1) rotate(3deg); opacity: 1; }
+  }
+
+  .casting-text {
+    color: var(--gold);
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.4em;
+    animation: text-flicker 0.8s ease-in-out infinite;
+  }
+
+  @keyframes text-flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  /* Result */
+  .result {
+    display: none;
+    animation: fade-up 0.8s ease both;
+  }
+  .result.show { display: block; }
+
+  /* Hexagram display */
+  .hexagram-card {
+    background: rgba(245,234,216,0.05);
+    border: 1px solid rgba(201,149,42,0.3);
+    border-radius: 4px;
+    padding: 50px 40px;
+    text-align: center;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hexagram-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, rgba(201,149,42,0.05) 0%, transparent 70%);
+  }
+
+  .hex-number {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 0.85rem;
+    color: rgba(201,149,42,0.6);
+    letter-spacing: 0.4em;
+    margin-bottom: 20px;
+  }
+
+  .hex-lines {
+    display: inline-flex;
+    flex-direction: column-reverse;
+    gap: 10px;
+    margin: 20px auto;
+  }
+
+  .hex-line {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    animation: line-reveal 0.4s ease forwards;
+  }
+
+  @keyframes line-reveal {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .line-bar {
+    width: 70px; height: 8px;
+    background: var(--gold);
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(201,149,42,0.4);
+  }
+
+  .line-bar.broken {
+    width: 30px;
+  }
+
+  .hex-name {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 3.5rem;
+    color: var(--gold-light);
+    letter-spacing: 0.3em;
+    margin: 20px 0 8px;
+    text-shadow: 0 0 30px rgba(201,149,42,0.5);
+  }
+
+  .hex-title {
+    font-size: 1rem;
+    color: rgba(245,234,216,0.7);
+    letter-spacing: 0.2em;
+  }
+
+  .hex-symbol-bg {
+    position: absolute;
+    right: -10px; bottom: -20px;
+    font-size: 15rem;
+    color: rgba(201,149,42,0.04);
+    font-family: serif;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  /* Interpretation sections */
+  .interp-card {
+    background: rgba(245,234,216,0.04);
+    border: 1px solid rgba(201,149,42,0.15);
+    border-radius: 4px;
+    padding: 30px 35px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .interp-card + .interp-card { border-top-color: rgba(201,149,42,0.15); }
+
+  .section-tag {
+    display: inline-block;
+    background: rgba(201,149,42,0.15);
+    border: 1px solid rgba(201,149,42,0.3);
+    color: var(--gold);
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.3em;
+    padding: 4px 12px;
+    border-radius: 2px;
+    margin-bottom: 16px;
+  }
+
+  .interp-text {
+    color: rgba(245,234,216,0.85);
+    font-size: 0.95rem;
+    line-height: 2;
+    letter-spacing: 0.05em;
+  }
+
+  .ai-loading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(201,149,42,0.6);
+    font-size: 0.9rem;
+    letter-spacing: 0.2em;
+  }
+
+  .dot-loader span {
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--gold);
+    border-radius: 50%;
+    margin: 0 2px;
+    animation: dot-bounce 1.2s ease-in-out infinite;
+  }
+  .dot-loader span:nth-child(2) { animation-delay: 0.2s; }
+  .dot-loader span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes dot-bounce {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Question answer section */
+  .answer-card {
+    background: linear-gradient(135deg, rgba(139,32,32,0.1), rgba(201,149,42,0.08));
+    border: 1px solid rgba(139,32,32,0.3);
+    border-left: 3px solid var(--red);
+    border-radius: 4px;
+    padding: 30px 35px;
+    margin-bottom: 16px;
+  }
+
+  .answer-card .section-tag {
+    background: rgba(139,32,32,0.2);
+    border-color: rgba(139,32,32,0.4);
+    color: #d4706a;
+  }
+
+  /* Reset button */
+  .btn-reset {
+    display: block;
+    width: 100%;
+    margin-top: 30px;
+    padding: 15px;
+    background: transparent;
+    border: 1px solid rgba(201,149,42,0.3);
+    border-radius: 3px;
+    color: rgba(201,149,42,0.7);
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 1rem;
+    letter-spacing: 0.4em;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .btn-reset:hover {
+    background: rgba(201,149,42,0.08);
+    border-color: rgba(201,149,42,0.5);
+    color: var(--gold);
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 40px 0 0;
+    color: rgba(201,149,42,0.3);
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    animation: fade-up 1s ease 0.6s both;
+  }
+
+  /* Animations */
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fade-down {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Moving line highlight */
+  .line-bar.moving {
+    background: linear-gradient(90deg, var(--gold), #e85a3a, var(--gold));
+    background-size: 200% 100%;
+    animation: moving-glow 1.5s ease-in-out infinite;
+    box-shadow: 0 0 16px rgba(232,90,58,0.6);
+  }
+  @keyframes moving-glow {
+    0%,100% { background-position:0% 50%; box-shadow:0 0 8px rgba(232,90,58,0.4); }
+    50% { background-position:100% 50%; box-shadow:0 0 20px rgba(232,90,58,0.9); }
+  }
+
+  .moving-dot {
+    width: 8px; height: 8px;
+    background: #e85a3a;
+    border-radius: 50%;
+    margin-left: 10px;
+    display: inline-block;
+    animation: dot-pulse 1s ease-in-out infinite;
+    box-shadow: 0 0 8px rgba(232,90,58,0.8);
+  }
+  @keyframes dot-pulse {
+    0%,100% { transform:scale(1); opacity:1; }
+    50% { transform:scale(1.4); opacity:0.7; }
+  }
+
+  /* Small hexagram lines for changed hex */
+  .hex-line-sm {
+    display: flex; gap: 6px; align-items: center;
+  }
+  .line-bar-sm {
+    width: 44px; height: 5px;
+    background: rgba(201,149,42,0.6);
+    border-radius: 1px;
+  }
+  .line-bar-sm.broken-sm { width: 18px; }
+
+  /* Casting overlay coin rows */
+  .casting-overlay { padding: 30px; }
+
+  .corner {
+    position: fixed;
+    width: 80px; height: 80px;
+    opacity: 0.15;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .corner svg { width: 100%; height: 100%; }
+  .corner.tl { top: 20px; left: 20px; }
+  .corner.tr { top: 20px; right: 20px; transform: scaleX(-1); }
+  .corner.bl { bottom: 20px; left: 20px; transform: scaleY(-1); }
+  .corner.br { bottom: 20px; right: 20px; transform: scale(-1); }
+
+  /* ── 历史记录 ── */
+  .history-btn {
+    position: fixed;
+    top: 20px; right: 20px;
+    background: rgba(201,149,42,0.12);
+    border: 1px solid rgba(201,149,42,0.35);
+    color: #c9952a;
+    font-family: inherit;
+    font-size: 0.8rem;
+    letter-spacing: 0.25em;
+    padding: 8px 16px;
+    border-radius: 2px;
+    cursor: pointer;
+    z-index: 200;
+    transition: background 0.2s;
+  }
+  .history-btn:hover { background: rgba(201,149,42,0.22); }
+
+  .history-panel {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(8,5,2,0.96);
+    z-index: 300;
+    overflow-y: auto;
+    padding: 40px 20px 80px;
+  }
+  .history-panel.open { display: block; }
+  .history-header {
+    max-width: 700px; margin: 0 auto 24px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .history-title {
+    font-family: inherit; font-size: 1.1rem;
+    color: #e8c56a; letter-spacing: 0.35em;
+  }
+  .history-close {
+    background: none; border: 1px solid rgba(201,149,42,0.3);
+    color: rgba(201,149,42,0.7); font-family: inherit;
+    font-size: 0.8rem; letter-spacing: 0.2em;
+    padding: 6px 14px; border-radius: 2px; cursor: pointer;
+  }
+  .history-clear {
+    background: none; border: 1px solid rgba(139,32,32,0.4);
+    color: rgba(200,80,80,0.7); font-family: inherit;
+    font-size: 0.75rem; letter-spacing: 0.15em;
+    padding: 6px 12px; border-radius: 2px; cursor: pointer;
+    margin-right: 10px;
+  }
+  .history-empty {
+    text-align: center; color: rgba(201,149,42,0.35);
+    font-size: 0.9rem; letter-spacing: 0.3em;
+    margin-top: 80px;
+  }
+  .history-item {
+    max-width: 700px; margin: 0 auto 16px;
+    background: rgba(245,234,216,0.04);
+    border: 1px solid rgba(201,149,42,0.18);
+    border-radius: 4px; padding: 20px 24px;
+    cursor: pointer; transition: border-color 0.2s;
+  }
+  .history-item:hover { border-color: rgba(201,149,42,0.4); }
+  .history-item-header {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 10px;
+  }
+  .history-hex-name {
+    font-family: inherit; font-size: 1.4rem;
+    color: #e8c56a; letter-spacing: 0.2em;
+  }
+  .history-date {
+    font-size: 0.72rem; color: rgba(201,149,42,0.45);
+    letter-spacing: 0.1em;
+  }
+  .history-question {
+    font-size: 0.85rem; color: rgba(245,234,216,0.65);
+    margin-bottom: 8px; line-height: 1.6;
+  }
+  .history-tags {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .history-tag {
+    font-size: 0.72rem; color: rgba(201,149,42,0.6);
+    border: 1px solid rgba(201,149,42,0.2);
+    padding: 2px 8px; border-radius: 2px;
+    letter-spacing: 0.1em;
+  }
+  .history-answer {
+    margin-top: 12px; padding-top: 12px;
+    border-top: 1px solid rgba(201,149,42,0.1);
+    font-size: 0.83rem; color: rgba(245,234,216,0.55);
+    line-height: 1.8; display: none;
+  }
+  .history-item.expanded .history-answer { display: block; }
+  .history-expand-hint {
+    font-size: 0.7rem; color: rgba(201,149,42,0.35);
+    margin-top: 8px; letter-spacing: 0.15em;
+  }
+
+
+  /* ══════════════════════════════════════════
+     移动端适配 @media
+  ══════════════════════════════════════════ */
+  @media (max-width: 600px) {
+
+    /* 容器 */
+    .container {
+      padding: 20px 14px 60px;
+    }
+
+    /* 顶部装饰角隐藏 */
+    .corner { display: none; }
+
+    /* 历史记录按钮移到左上，避免遮挡 */
+    .history-btn {
+      top: 12px; right: 12px;
+      font-size: 0.72rem;
+      padding: 6px 11px;
+      letter-spacing: 0.1em;
+    }
+
+    /* 历史记录面板 */
+    .history-panel { padding: 20px 12px 60px; }
+    .history-item  { padding: 16px 16px; }
+    .history-title { font-size: 0.95rem; }
+
+    /* 头部 */
+    .header { padding: 36px 0 32px; }
+    .header-symbol {
+      font-size: 2rem;
+      letter-spacing: 1rem;
+    }
+    .header h1 {
+      font-size: clamp(1.8rem, 8vw, 2.6rem);
+      letter-spacing: 0.2em;
+    }
+    .header-sub {
+      font-size: 0.72rem;
+      letter-spacing: 0.3em;
+    }
+
+    /* 问题卡片 */
+    .question-card { padding: 24px 18px; }
+    .question-card::before { font-size: 5rem; }
+
+    textarea {
+      font-size: 0.95rem;
+      padding: 14px 14px;
+      height: 90px;
+    }
+
+    .btn-cast {
+      font-size: 1rem;
+      padding: 15px;
+      margin-top: 18px;
+      letter-spacing: 0.35em;
+    }
+
+    /* 起卦遮罩 */
+    .casting-overlay { padding: 20px 16px; gap: 20px; }
+    .casting-text {
+      font-size: 1rem;
+      letter-spacing: 0.25em;
+    }
+
+    /* 卦象卡片 */
+    .hexagram-card { padding: 32px 20px; }
+    .hex-name { font-size: 2.6rem; }
+    .hex-symbol-bg { font-size: 9rem; right: -6px; bottom: -14px; }
+
+    /* 爻线变细变短 */
+    .line-bar        { width: 52px; height: 6px; }
+    .line-bar.broken { width: 22px; }
+    .hex-lines       { gap: 8px; }
+
+    /* 小变卦爻线 */
+    .line-bar-sm        { width: 34px; height: 4px; }
+    .line-bar-sm.broken-sm { width: 14px; }
+
+    /* 变卦区域：竖向排列 */
+    #changedHexSection .interp-card > div,
+    #changedHexSection > div {
+      flex-direction: column !important;
+      gap: 14px !important;
+    }
+
+    /* 解读卡片 */
+    .interp-card  { padding: 20px 18px; }
+    .answer-card  { padding: 20px 18px; }
+    .interp-text  { font-size: 0.9rem; line-height: 1.9; }
+    .section-tag  { font-size: 0.74rem; }
+
+    /* 重置按钮 */
+    .btn-reset {
+      font-size: 0.9rem;
+      padding: 13px;
+      letter-spacing: 0.3em;
+    }
+
+    /* 页脚 */
+    .footer { font-size: 0.68rem; letter-spacing: 0.2em; }
+  }
+
+  /* 超小屏（iPhone SE等320px宽）额外微调 */
+  @media (max-width: 360px) {
+    .header h1       { font-size: 1.6rem; }
+    .hex-name        { font-size: 2.2rem; }
+    .line-bar        { width: 44px; }
+    .line-bar.broken { width: 18px; }
+    .question-card   { padding: 18px 14px; }
+    .interp-card,
+    .answer-card     { padding: 16px 14px; }
+  }
+
+</style>
+</head>
+<body>
+<!-- 历史记录按钮 -->
+<button class="history-btn" onclick="openHistory()">📜 问卦记录</button>
+
+<!-- 历史记录面板 -->
+<div class="history-panel" id="historyPanel">
+  <div class="history-header">
+    <div class="history-title">问卦记录</div>
+    <div>
+      <button class="history-clear" onclick="clearHistory()">清空记录</button>
+      <button class="history-close" onclick="closeHistory()">✕ 关闭</button>
+    </div>
+  </div>
+  <div id="historyList"></div>
+</div>
+
+
+<div class="bg"></div>
+
+<!-- Decorative corners -->
+<div class="corner tl">
+  <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M5 5 L5 35 M5 5 L35 5 M5 5 L25 25" stroke="#c9952a" stroke-width="1.5"/>
+    <circle cx="5" cy="5" r="3" fill="#c9952a"/>
+    <path d="M15 15 L45 15 M15 15 L15 45" stroke="#c9952a" stroke-width="0.7" opacity="0.5"/>
+  </svg>
+</div>
+<div class="corner tr"><svg viewBox="0 0 80 80" fill="none"><path d="M5 5 L5 35 M5 5 L35 5 M5 5 L25 25" stroke="#c9952a" stroke-width="1.5"/><circle cx="5" cy="5" r="3" fill="#c9952a"/><path d="M15 15 L45 15 M15 15 L15 45" stroke="#c9952a" stroke-width="0.7" opacity="0.5"/></svg></div>
+<div class="corner bl"><svg viewBox="0 0 80 80" fill="none"><path d="M5 5 L5 35 M5 5 L35 5 M5 5 L25 25" stroke="#c9952a" stroke-width="1.5"/><circle cx="5" cy="5" r="3" fill="#c9952a"/><path d="M15 15 L45 15 M15 15 L15 45" stroke="#c9952a" stroke-width="0.7" opacity="0.5"/></svg></div>
+<div class="corner br"><svg viewBox="0 0 80 80" fill="none"><path d="M5 5 L5 35 M5 5 L35 5 M5 5 L25 25" stroke="#c9952a" stroke-width="1.5"/><circle cx="5" cy="5" r="3" fill="#c9952a"/><path d="M15 15 L45 15 M15 15 L15 45" stroke="#c9952a" stroke-width="0.7" opacity="0.5"/></svg></div>
+
+<!-- Particles -->
+<div class="particles" id="particles"></div>
+
+<!-- Casting overlay -->
+<div class="casting-overlay" id="castingOverlay">
+  <div style="text-align:center;margin-bottom:20px;">
+    <div style="color:rgba(201,149,42,0.6);font-size:0.8rem;letter-spacing:0.4em;margin-bottom:16px;">铜钱起卦 · 逐爻显现</div>
+    <div id="yarrowContainer" style="display:flex;flex-direction:column;gap:10px;min-height:200px;"></div>
+  </div>
+  <div class="casting-text" id="castingStatusText">天机运转，卦象显现……</div>
+</div>
+
+<div class="container">
+  <header class="header">
+    <span class="header-symbol">☰ ☵ ☴</span>
+    <h1>易经问道</h1>
+    <div class="header-sub">天地玄黄 · 宇宙洪荒 · 六十四卦演万象</div>
+    <div class="divider"><span>✦</span></div>
+  </header>
+
+  <!-- Question form -->
+  <div class="question-card" id="questionCard">
+    <div class="question-label">心中所问</div>
+    <textarea id="questionInput" placeholder="请将您心中所惑之事娓娓道来，或问事业前途，或问姻缘感情，或问得失取舍……" maxlength="500"></textarea>
+    <button class="btn-cast" id="castBtn" onclick="castHexagram()">
+      ✦ 起卦问道 ✦
+    </button>
+  </div>
+
+  <!-- Result area -->
+  <div class="result" id="result">
+
+    <!-- Intent badge -->
+    <div id="intentBadge" style="display:none;text-align:center;margin-bottom:16px;font-family:'ZCOOL XiaoWei',serif;font-size:0.9rem;letter-spacing:0.3em;padding:8px 20px;border:1px solid;border-radius:2px;background:rgba(0,0,0,0.3);"></div>
+
+    <!-- Hexagram visual -->
+    <div class="hexagram-card" id="hexagramCard">
+      <div class="hex-number" id="hexNumber"></div>
+      <div class="hex-lines" id="hexLines"></div>
+      <div class="hex-name" id="hexName"></div>
+      <div class="hex-title" id="hexTitle"></div>
+      <div class="hex-symbol-bg" id="hexSymbolBg"></div>
+    </div>
+
+    <!-- Changed hexagram -->
+    <div id="changedHexSection" style="display:none;" class="interp-card">
+      <div class="section-tag">变 卦</div>
+      <div style="display:flex;align-items:center;gap:30px;flex-wrap:wrap;">
+        <div>
+          <div style="color:rgba(201,149,42,0.5);font-size:0.75rem;letter-spacing:0.3em;margin-bottom:8px;">共 <span id="movingCount"></span> 动爻，卦象转化为</div>
+          <div style="display:flex;align-items:center;gap:20px;">
+            <div class="hex-lines-sm" id="changedHexLines" style="display:flex;flex-direction:column-reverse;gap:6px;"></div>
+            <div>
+              <div style="font-family:'ZCOOL XiaoWei',serif;font-size:2rem;color:var(--gold-light);" id="changedHexName"></div>
+              <div style="font-size:0.85rem;color:rgba(245,234,216,0.6);" id="changedHexTitle"></div>
+            </div>
+          </div>
+        </div>
+        <div style="color:rgba(245,234,216,0.4);font-size:0.8rem;line-height:1.8;flex:1;min-width:180px;">
+          动爻为阴阳转化之机，<br>本卦示现状，变卦示走向，<br>两卦合参方得全象。
+        </div>
+      </div>
+    </div>
+
+    <!-- Gua Ci -->
+    <div class="interp-card">
+      <div class="section-tag">卦 辞</div>
+      <div class="interp-text" id="guaCiText">
+        <div class="ai-loading">
+          <span>正在推演</span>
+          <div class="dot-loader"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interpretation -->
+    <div class="interp-card">
+      <div class="section-tag">象 义</div>
+      <div class="interp-text" id="xiangYiText">
+        <div class="ai-loading">
+          <span>天机流转</span>
+          <div class="dot-loader"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Answer to question -->
+    <div class="answer-card">
+      <div class="section-tag">针对所问</div>
+      <div class="interp-text" id="answerText">
+        <div class="ai-loading">
+          <span>卦象解读中</span>
+          <div class="dot-loader"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advice -->
+    <div class="interp-card">
+      <div class="section-tag">趋吉避凶</div>
+      <div class="interp-text" id="adviceText">
+        <div class="ai-loading">
+          <span>指引显现</span>
+          <div class="dot-loader"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-reset" onclick="resetDivination()">✦ 重新起卦 ✦</button>
+  </div>
+
+  <footer class="footer">
+    <div>易有太极，是生两仪，两仪生四象，四象生八卦</div>
+    <div style="margin-top:8px; opacity:0.6">此占卜仅供参考，人生路途，终须自己把握</div>
+  </footer>
+</div>
+
+
+<script>
+// ============================================================
+// 64卦完整数据（序号、名称、卦名、爻线从初爻到上爻 1=阳 0=阴）
+// ============================================================
+const HEXAGRAMS = [
+  { num:1, name:"乾", title:"乾为天", lines:[1,1,1,1,1,1], guaCi:"乾：元，亨，利，贞。", desc:"天行健，君子以自强不息。纯阳刚健，创造进取，生机旺盛。", yao:[["初九","潜龙，勿用。"],["九二","见龙在田，利见大人。"],["九三","君子终日乾乾，夕惕若，厉无咎。"],["九四","或跃在渊，无咎。"],["九五","飞龙在天，利见大人。"],["上九","亢龙有悔。"]], yong:["用九","见群龙无首，吉。"] },
+  { num:2, name:"坤", title:"坤为地", lines:[0,0,0,0,0,0], guaCi:"坤：元亨，利牝马之贞。", desc:"地势坤，君子以厚德载物。纯阴柔顺，承载育养，包容广大。", yao:[["初六","履霜，坚冰至。"],["六二","直方大，不习无不利。"],["六三","含章可贞；或从王事，无成有终。"],["六四","括囊，无咎无誉。"],["六五","黄裳，元吉。"],["上六","龙战于野，其血玄黄。"]], yong:["用六","利永贞。"] },
+  { num:3, name:"屯", title:"水雷屯", lines:[1,0,0,0,1,0], guaCi:"屯：元亨，利贞，勿用有攸往。", desc:"云雷屯，万物始生。艰难创业，蕴含生机，宜守不宜进。", yao:[["初九","磐桓；利居贞，利建侯。"],["六二","屯如，邅如，乘马班如。匪寇婚媾。女子贞不字，十年乃字。"],["六三","即鹿无虞，惟入于林中，君子几，不如舍，往吝。"],["六四","乘马班如，求婚媾，往吉，无不利。"],["九五","屯其膏，小贞吉，大贞凶。"],["上六","乘马班如，泣血涟如。"]] },
+  { num:4, name:"蒙", title:"山水蒙", lines:[0,1,0,0,0,1], guaCi:"蒙：亨。匪我求童蒙，童蒙求我。", desc:"山下出泉，启蒙教化。以诚求学，积蓄力量，时机未熟。", yao:[["初六","发蒙，利用刑人，用说桎梏；以往吝。"],["九二","包蒙，吉。纳妇，吉；子克家。"],["六三","勿用取女，见金夫，不有躬，无攸利。"],["六四","困蒙，吝。"],["六五","童蒙，吉。"],["上九","击蒙；不利为寇，利御寇。"]] },
+  { num:5, name:"需", title:"水天需", lines:[1,1,1,0,1,0], guaCi:"需：有孚，光亨，贞吉，利涉大川。", desc:"云上于天，等待时机。以诚守正，蓄而待发，终将亨通。", yao:[["初九","需于郊，利用恒，无咎。"],["九二","需于沙，小有言；终吉。"],["九三","需于泥，致寇至。"],["六四","需于血，出自穴。"],["九五","需于酒食，贞吉。"],["上六","入于穴，有不速之客三人来；敬之，终吉。"]] },
+  { num:6, name:"讼", title:"天水讼", lines:[0,1,0,1,1,1], guaCi:"讼：有孚，窒惕，中吉，终凶。", desc:"天与水违行，争讼之象。宜中道而止，不可穷追。", yao:[["初六","不永所事，小有言，终吉。"],["九二","不克讼，归而逋，其邑人三百户，无眚。"],["六三","食旧德，贞厉，终吉；或从王事，无成。"],["九四","不克讼；复即命，渝，安贞，吉。"],["九五","讼，元吉。"],["上九","或锡之鞶带，终朝三褫之。"]] },
+  { num:7, name:"师", title:"地水师", lines:[0,1,0,0,0,0], guaCi:"师：贞，丈人吉，无咎。", desc:"地中有水，统御之道。以德服众，上下同心则吉。", yao:[["初六","师出以律，否臧凶。"],["九二","在师中吉，无咎；王三锡命。"],["六三","师或舆尸，凶。"],["六四","师左次，无咎。"],["六五","田有禽，利执言，无咎；长子帅师，弟子舆尸，贞凶。"],["上六","大君有命，开国承家，小人勿用。"]] },
+  { num:8, name:"比", title:"水地比", lines:[0,0,0,0,1,0], guaCi:"比：吉，原筮，元永贞，无咎。", desc:"地上有水，亲比团结。以诚相辅，上下和睦，共谋大业。", yao:[["初六","有孚比之，无咎；有孚盈缶，终来有它，吉。"],["六二","比之自内，贞吉。"],["六三","比之匪人。"],["六四","外比之，贞吉。"],["九五","显比；王用三驱，失前禽。邑人不诫，吉。"],["上六","比之无首，凶。"]] },
+  { num:9, name:"小畜", title:"风天小畜", lines:[1,1,1,0,1,1], guaCi:"小畜：亨，密云不雨，自我西郊。", desc:"风行天上，小蓄待时。积蓄力量，蓄而未发，静待时机。", yao:[["初九","复自道，何其咎？吉。"],["九二","牵复，吉。"],["九三","舆说辐，夫妻反目。"],["六四","有孚，血去惕出，无咎。"],["九五","有孚挛如，富以其邻。"],["上九","既雨既处，尚德载；妇贞厉，月几望；君子征凶。"]] },
+  { num:10, name:"履", title:"天泽履", lines:[1,1,0,1,1,1], guaCi:"履：履虎尾，不咥人，亨。", desc:"上天下泽，谨慎履行。踏实前进，礼让处世，可化险为夷。", yao:[["初九","素履，往，无咎。"],["九二","履道坦坦，幽人贞吉。"],["六三","眇能视，跛能履，履虎尾，咥人，凶；武人为于大君。"],["九四","履虎尾，愬愬，终吉。"],["九五","夬履，贞厉。"],["上九","视履考祥，其旋元吉。"]] },
+  { num:11, name:"泰", title:"地天泰", lines:[1,1,1,0,0,0], guaCi:"泰：小往大来，吉，亨。", desc:"天地相交，万物通泰。阴阳和合，上下交流，诸事顺遂。", yao:[["初九","拔茅茹，以其汇，征吉。"],["九二","包荒，用冯河，不遐遗；朋亡，得尚于中行。"],["九三","无平不陂，无往不复；艰贞无咎，勿恤其孚，于食有福。"],["六四","翩翩，不富，以其邻，不戒以孚。"],["六五","帝乙归妹，以祉元吉。"],["上六","城复于隍，勿用师，自邑告命，贞吝。"]] },
+  { num:12, name:"否", title:"天地否", lines:[0,0,0,1,1,1], guaCi:"否：否之匪人，不利君子贞。", desc:"天地不交，阴阳阻隔。事不通达，宜韬光养晦，静待时变。", yao:[["初六","拔茅茹，以其汇，贞吉，亨。"],["六二","包承，小人吉。大人否，亨。"],["六三","包羞。"],["九四","有命无咎，畴离祉。"],["九五","休否，大人吉；其亡其亡，系于苞桑。"],["上九","倾否，先否后喜。"]] },
+  { num:13, name:"同人", title:"天火同人", lines:[1,0,1,1,1,1], guaCi:"同人：同人于野，亨，利涉大川。", desc:"天与火，志同道合。群策群力，公心处世，广结善缘大吉。", yao:[["初九","同人于门，无咎。"],["六二","同人于宗，吝。"],["九三","伏戎于莽，升其高陵，三岁不兴。"],["九四","乘其墉，弗克攻，吉。"],["九五","同人，先号咷，而后笑，大师克相遇。"],["上九","同人于郊，无悔。"]] },
+  { num:14, name:"大有", title:"火天大有", lines:[1,1,1,1,0,1], guaCi:"大有：元亨。", desc:"火在天上，大丰收之象。阳刚中正，光明普照，盛世之卦。", yao:[["初九","无交害，匪咎；艰则无咎。"],["九二","大车以载，有攸往，无咎。"],["九三","公用亨于天子，小人弗克。"],["九四","匪其彭，无咎。"],["六五","厥孚交如，威如，吉。"],["上九","自天祐之，吉无不利。"]] },
+  { num:15, name:"谦", title:"地山谦", lines:[0,0,1,0,0,0], guaCi:"谦：亨，君子有终。", desc:"地中有山，谦虚处世。以柔克刚，低调蓄力，必有善终。", yao:[["初六","谦谦君子，用涉大川，吉。"],["六二","鸣谦，贞吉。"],["九三","劳谦，君子有终，吉。"],["六四","无不利，撝谦。"],["六五","不富以其邻，利用侵伐，无不利。"],["上六","鸣谦，利用行师，征邑国。"]] },
+  { num:16, name:"豫", title:"雷地豫", lines:[0,0,0,1,0,0], guaCi:"豫：利建侯行师。", desc:"雷出地奋，顺势而为。豫先准备，欢悦和谐，万事顺遂。", yao:[["初六","鸣豫，凶。"],["六二","介于石，不终日，贞吉。"],["六三","盱豫，悔。迟有悔。"],["九四","由豫，大有得；勿疑。朋盍簪。"],["六五","贞疾，恒不死。"],["上六","冥豫，成有渝，无咎。"]] },
+  { num:17, name:"随", title:"泽雷随", lines:[1,0,0,1,1,0], guaCi:"随：元亨，利贞，无咎。", desc:"泽中有雷，顺应时势。灵活变通，跟随正道，吉无不利。", yao:[["初九","官有渝，贞吉；出门交有功。"],["六二","系小子，失丈夫。"],["六三","系丈夫，失小子；随有求得，利居贞。"],["九四","随有获，贞凶；有孚在道，以明，何咎？"],["九五","孚于嘉，吉。"],["上六","拘系之，乃从维之；王用亨于西山。"]] },
+  { num:18, name:"蛊", title:"山风蛊", lines:[0,1,1,0,0,1], guaCi:"蛊：元亨，利涉大川。", desc:"山下有风，拨乱反正。除旧布新，勇于改革，重振事业。", yao:[["初六","干父之蛊，有子，考无咎，厉终吉。"],["九二","干母之蛊，不可贞。"],["九三","干父之蛊，小有悔，无大咎。"],["六四","裕父之蛊，往见吝。"],["六五","干父之蛊，用誉。"],["上九","不事王侯，高尚其事。"]] },
+  { num:19, name:"临", title:"地泽临", lines:[1,1,0,0,0,0], guaCi:"临：元亨，利贞。", desc:"泽上有地，亲临下民。积极进取，把握时机，蓬勃发展。", yao:[["初九","咸临，贞吉。"],["九二","咸临，吉，无不利。"],["六三","甘临，无攸利；既忧之，无咎。"],["六四","至临，无咎。"],["六五","知临，大君之宜，吉。"],["上六","敦临，吉，无咎。"]] },
+  { num:20, name:"观", title:"风地观", lines:[0,0,0,0,1,1], guaCi:"观：盥而不荐，有孚颙若。", desc:"风行地上，高瞻远瞩。以身作则，观察形势，蓄势待发。", yao:[["初六","童观，小人无咎，君子吝。"],["六二","窥观，利女贞。"],["六三","观我生，进退。"],["六四","观国之光，利用宾于王。"],["九五","观我生，君子无咎。"],["上九","观其生，君子无咎。"]] },
+  { num:21, name:"噬嗑", title:"火雷噬嗑", lines:[1,0,0,1,0,1], guaCi:"噬嗑：亨，利用狱。", desc:"雷电噬嗑，破除障碍。刚柔相济，明断是非，冲破阻力。", yao:[["初九","屦校灭趾，无咎。"],["六二","噬肤灭鼻，无咎。"],["六三","噬腊肉，遇毒；小吝，无咎。"],["九四","噬干胏，得金矢；利艰贞，吉。"],["六五","噬干肉，得黄金，贞厉，无咎。"],["上九","何校灭耳，凶。"]] },
+  { num:22, name:"贲", title:"山火贲", lines:[1,0,1,0,0,1], guaCi:"贲：亨，小利有攸往。", desc:"山下有火，文饰之道。内外兼修，注重仪表，小事可行。", yao:[["初九","贲其趾，舍车而徒。"],["六二","贲其须。"],["九三","贲如，濡如，永贞吉。"],["六四","贲如，皤如，白马翰如，匪寇，婚媾。"],["六五","贲于丘园，束帛戋戋；吝，终吉。"],["上九","白贲，无咎。"]] },
+  { num:23, name:"剥", title:"山地剥", lines:[0,0,0,0,0,1], guaCi:"剥：不利有攸往。", desc:"山附于地，阴盛阳衰。事物剥落，宜守不宜进，安稳处世。", yao:[["初六","剥床以足，蔑贞；凶。"],["六二","剥床以辨，蔑贞凶。"],["六三","剥之，无咎。"],["六四","剥床以肤，凶。"],["六五","贯鱼以宫人宠，无不利。"],["上九","硕果不食，君子得舆，小人剥庐。"]] },
+  { num:24, name:"复", title:"地雷复", lines:[1,0,0,0,0,0], guaCi:"复：亨，出入无疾，七日来复。", desc:"雷在地中，一阳来复。万象更新，否极泰来，循环往复。", yao:[["初九","不远复，无祗悔，元吉。"],["六二","休复，吉。"],["六三","频复，厉无咎。"],["六四","中行独复。"],["六五","敦复，无悔。"],["上六","迷复，凶，有灾眚。用行师，终有大败；以其国，君凶，至于十年不克征。"]] },
+  { num:25, name:"无妄", title:"天雷无妄", lines:[1,0,0,1,1,1], guaCi:"无妄：元亨，利贞。", desc:"天下雷行，顺天应人。不妄为，无私心，纯正自然，天道酬诚。", yao:[["初九","无妄，往吉。"],["六二","不耕获，不菑畬，则利有攸往。"],["六三","无妄之灾：或系之牛，行人之得，邑人之灾。"],["九四","可贞，无咎。"],["九五","无妄之疾，勿药有喜。"],["上九","无妄，行有眚，无攸利。"]] },
+  { num:26, name:"大畜", title:"山天大畜", lines:[1,1,1,0,0,1], guaCi:"大畜：利贞，不家食吉。", desc:"天在山中，积聚能量。厚积薄发，蓄而后发，成就大业。", yao:[["初九","有厉，利已。"],["九二","舆说輹。"],["九三","良马逐，利艰贞。曰闲舆卫，利有攸往。"],["六四","童牛之牿，元吉。"],["六五","豮豕之牙，吉。"],["上九","何天之衢，亨。"]] },
+  { num:27, name:"颐", title:"山雷颐", lines:[1,0,0,0,0,1], guaCi:"颐：贞吉，观颐，自求口实。", desc:"山下有雷，颐养之道。慎言节食，修身养性，内外兼顾。", yao:[["初九","舍尔灵龟，观我朵颐，凶。"],["六二","颠颐；拂经于丘颐，征凶。"],["六三","拂颐；贞凶，十年勿用；无攸利。"],["六四","颠颐，吉；虎视眈眈，其欲逐逐，无咎。"],["六五","拂经；居贞吉，不可涉大川。"],["上九","由颐；厉吉，利涉大川。"]] },
+  { num:28, name:"大过", title:"泽风大过", lines:[0,1,1,1,1,0], guaCi:"大过：栋桡，利有攸往，亨。", desc:"泽灭木，非常时期。需非常之举，中道行事，力挽狂澜。", yao:[["初六","藉用白茅，无咎。"],["九二","枯杨生稊，老夫得其女妻；无不利。"],["九三","栋桡，凶。"],["九四","栋隆，吉；有它，吝。"],["九五","枯杨生华，老妇得其士夫，无咎无誉。"],["上六","过涉灭顶；凶，无咎。"]] },
+  { num:29, name:"坎", title:"坎为水", lines:[0,1,0,0,1,0], guaCi:"坎：有孚，维心亨，行有尚。", desc:"水洊至，险中求生。以诚克险，坚守信义，险而后通。", yao:[["初六","习坎，入于坎窞，凶。"],["九二","坎有险，求小得。"],["六三","来之坎坎，险且枕，入于坎窞，勿用。"],["六四","樽酒，簋贰，用缶，纳约自牖，终无咎。"],["九五","坎不盈，祗既平，无咎。"],["上六","係用徽纆，寘于丛棘，三岁不得，凶。"]] },
+  { num:30, name:"离", title:"离为火", lines:[1,0,1,1,0,1], guaCi:"离：利贞，亨。畜牝牛，吉。", desc:"明两作，光明正大。附丽正道，文明昌盛，前途光明。", yao:[["初九","履错然，敬之，无咎。"],["六二","黄离，元吉。"],["九三","日昃之离，不鼓缶而歌，则大耋之嗟，凶。"],["九四","突如其来如，焚如，死如，弃如。"],["六五","出涕沱若，戚嗟若，吉。"],["上九","王用出征，有嘉折首，获匪其丑，无咎。"]] },
+  { num:31, name:"咸", title:"泽山咸", lines:[0,0,1,1,1,0], guaCi:"咸：亨，利贞，取女吉。", desc:"山上有泽，感应之道。相互吸引，以诚相感，情投意合。", yao:[["初六","咸其拇。"],["六二","咸其腓，凶；居吉。"],["九三","咸其股，执其随，往吝。"],["九四","贞吉，悔亡，憧憧往来，朋从尔思。"],["九五","咸其脢，无悔。"],["上六","咸其辅颊舌。"]] },
+  { num:32, name:"恒", title:"雷风恒", lines:[0,1,1,1,0,0], guaCi:"恒：亨，无咎，利贞。", desc:"雷风相薄，持之以恒。恒久坚守，一以贯之，终成大业。", yao:[["初六","浚恒，贞凶，无攸利。"],["九二","悔亡。"],["九三","不恒其德，或承之羞；贞吝。"],["九四","田无禽。"],["六五","恒其德，贞；妇人吉，夫子凶。"],["上六","振恒，凶。"]] },
+  { num:33, name:"遁", title:"天山遁", lines:[0,0,1,1,1,1], guaCi:"遁：亨，小利贞。", desc:"天下有山，适时退隐。以退为进，保存实力，留待时机。", yao:[["初六","遁尾，厉，勿用有攸往。"],["六二","执之用黄牛之革，莫之胜说。"],["九三","系遁，有疾厉；畜臣妾，吉。"],["九四","好遁，君子吉，小人否。"],["九五","嘉遁，贞吉。"],["上九","肥遁，无不利。"]] },
+  { num:34, name:"大壮", title:"雷天大壮", lines:[1,1,1,1,0,0], guaCi:"大壮：利贞。", desc:"雷在天上，阳刚强盛。正大光明，壮而有礼，刚健进取。", yao:[["初九","壮于趾，征凶，有孚。"],["九二","贞吉。"],["九三","小人用壮，君子用罔；贞厉。羝羊触藩，羸其角。"],["九四","贞吉，悔亡；藩决不羸，壮于大舆之輹。"],["六五","丧羊于易，无悔。"],["上六","羝羊触藩，不能退，不能遂，无攸利；艰则吉。"]] },
+  { num:35, name:"晋", title:"火地晋", lines:[0,0,0,1,0,1], guaCi:"晋：康侯用锡马蕃庶，昼日三接。", desc:"明出地上，日出东方。光明上升，进步提升，前途光明。", yao:[["初六","晋如摧如，贞吉。罔孚，裕无咎。"],["六二","晋如愁如，贞吉，受兹介福，于其王母。"],["六三","众允，悔亡。"],["九四","晋如鼫鼠，贞厉。"],["六五","悔亡，失得勿恤，往吉，无不利。"],["上九","晋其角，维用伐邑，厉吉无咎。贞吝。"]] },
+  { num:36, name:"明夷", title:"地火明夷", lines:[1,0,1,0,0,0], guaCi:"明夷：利艰贞。", desc:"明入地中，光明受损。韬光养晦，外柔内刚，静待时机。", yao:[["初九","明夷于飞，垂其翼；君子于行，三日不食。有攸往，主人有言。"],["六二","明夷，夷于左股，用拯马壮，吉。"],["九三","明夷于南狩，得其大首。不可疾贞。"],["六四","入于左腹，获明夷之心，于出门庭。"],["六五","箕子之明夷，利贞。"],["上六","不明晦，初登于天，后入于地。"]] },
+  { num:37, name:"家人", title:"风火家人", lines:[1,0,1,0,1,1], guaCi:"家人：利女贞。", desc:"风自火出，家道正则天下定。治家之道，内外和谐。", yao:[["初九","闲有家，悔亡。"],["六二","无攸遂，在中馈，贞吉。"],["九三","家人嗃嗃，悔厉，吉；妇子嘻嘻，终吝。"],["六四","富家，大吉。"],["九五","王假有家，勿恤，吉。"],["上九","有孚，威如，终吉。"]] },
+  { num:38, name:"睽", title:"火泽睽", lines:[1,1,0,1,0,1], guaCi:"睽：小事吉。", desc:"上火下泽，意见相左。求同存异，小事可行，大事需协商。", yao:[["初九","悔亡；丧马勿逐，自复；见恶人，无咎。"],["九二","遇主于巷，无咎。"],["六三","见舆曳，其牛掣；其人天且劓。无初有终。"],["九四","睽孤，遇元夫，交孚，厉无咎。"],["六五","悔亡，厥宗噬肤，往何咎？"],["上九","睽孤，见豕负涂，载鬼一车，先张之弧，后说之弧；匪寇婚媾，往遇雨则吉。"]] },
+  { num:39, name:"蹇", title:"水山蹇", lines:[0,0,1,0,1,0], guaCi:"蹇：利西南，不利东北。", desc:"山上有水，行路艰难。宜知难而退，修身以待，险阻终通。", yao:[["初六","往蹇，来誉。"],["六二","王臣蹇蹇，匪躬之故。"],["九三","往蹇，来反。"],["六四","往蹇，来连。"],["九五","大蹇，朋来。"],["上六","往蹇，来硕；吉，利见大人。"]] },
+  { num:40, name:"解", title:"雷水解", lines:[0,1,0,1,0,0], guaCi:"解：利西南，无所往，其来复吉。", desc:"雷雨作，险难解除。宽以待人，趁势而动，宜速不宜迟。", yao:[["初六","无咎。"],["九二","田获三狐，得黄矢；贞吉。"],["六三","负且乘，致寇至，贞吝。"],["九四","解而拇，朋至斯孚。"],["六五","君子维有解，吉，有孚于小人。"],["上六","公用射隼于高墉之上，获之，无不利。"]] },
+  { num:41, name:"损", title:"山泽损", lines:[1,1,0,0,0,1], guaCi:"损：有孚，元吉，无咎。", desc:"山下有泽，减损私欲。克己奉公，以小损换大益，损之而益。", yao:[["初九","已事遄往，无咎；酌损之。"],["九二","利贞，征凶；弗损益之。"],["六三","三人行，则损一人；一人行，则得其友。"],["六四","损其疾，使遄有喜，无咎。"],["六五","或益之十朋之龟，弗克违，元吉。"],["上九","弗损益之，无咎。贞吉，利有攸往，得臣无家。"]] },
+  { num:42, name:"益", title:"风雷益", lines:[1,0,0,0,1,1], guaCi:"益：利有攸往，利涉大川。", desc:"风雷，增益之象。上下受益，进取有为，利于大事。", yao:[["初九","利用为大作，元吉，无咎。"],["六二","或益之十朋之龟，弗克违。永贞吉；王用享于帝，吉。"],["六三","益之用凶事，无咎；有孚中行，告公用圭。"],["六四","中行，告公从，利用为依迁国。"],["九五","有孚惠心，勿问元吉。有孚惠我德。"],["上九","莫益之，或击之，立心勿恒，凶。"]] },
+  { num:43, name:"夬", title:"泽天夬", lines:[1,1,1,1,1,0], guaCi:"夬：扬于王庭，有厉，利有攸往。", desc:"泽上于天，决断之时。公正宣扬，刚健决断，去除小人。", yao:[["初九","壮于前趾，往不胜为咎。"],["九二","惕号，莫夜有戎，勿恤。"],["九三","壮于頄，有凶。君子夬夬独行，遇雨若濡，有愠无咎。"],["九四","臀无肤，其行次且；牵羊悔亡，闻言不信。"],["九五","苋陆夬夬，中行无咎。"],["上六","无号，终有凶。"]] },
+  { num:44, name:"姤", title:"天风姤", lines:[0,1,1,1,1,1], guaCi:"姤：女壮，勿用取女。", desc:"天下有风，邂逅相遇。防范阴柔小人，遇事需慎重辨别。", yao:[["初六","系于金柅，贞吉；有攸往，见凶，羸豕孚踯躅。"],["九二","包有鱼，无咎，不利宾。"],["九三","臀无肤，其行次且；厉，无大咎。"],["九四","包无鱼，起凶。"],["九五","以杞包瓜，含章，有陨自天。"],["上九","姤其角，吝，无咎。"]] },
+  { num:45, name:"萃", title:"泽地萃", lines:[0,0,0,1,1,0], guaCi:"萃：亨，王假有庙，利见大人。", desc:"泽上于地，汇聚凝结。广结人缘，集思广益，共谋大事。", yao:[["初六","有孚不终，乃乱乃萃；若号，一握为笑，勿恤，往无咎。"],["六二","引吉，无咎；孚乃利用禴。"],["六三","萃如，嗟如，无攸利；往无咎，小吝。"],["九四","大吉，无咎。"],["九五","萃有位，无咎；匪孚，元永贞，悔亡。"],["上六","赍咨涕洟，无咎。"]] },
+  { num:46, name:"升", title:"地风升", lines:[0,1,1,0,0,0], guaCi:"升：元亨，用见大人，南征吉。", desc:"地中生木，循序渐进。稳步上升，积累而成大业。", yao:[["初六","允升，大吉。"],["九二","孚乃利用禴，无咎。"],["九三","升虚邑。"],["六四","王用亨于岐山，吉无咎。"],["六五","贞吉，升阶。"],["上六","冥升，利于不息之贞。"]] },
+  { num:47, name:"困", title:"泽水困", lines:[0,1,0,1,1,0], guaCi:"困：亨，贞，大人吉，无咎。", desc:"泽无水，困境之中。守正不移，坚定意志，穷则思变终通。", yao:[["初六","臀困于株木，入于幽谷，三岁不觌。"],["九二","困于酒食，朱绂方来，利用享祀；征凶，无咎。"],["六三","困于石，据于蒺藜，入于其宫，不见其妻，凶。"],["九四","来徐徐，困于金车，吝，有终。"],["九五","劓刖，困于赤绂，乃徐有说，利用祭祀。"],["上六","困于葛藟，于臲卼，曰动悔，有悔。征吉。"]] },
+  { num:48, name:"井", title:"水风井", lines:[0,1,1,0,1,0], guaCi:"井：改邑不改井，无丧无得。", desc:"木上有水，取之不竭。养民之道，开发内在潜能，利人利己。", yao:[["初六","井泥不食，旧井无禽。"],["九二","井谷射鲋，瓮敝漏。"],["九三","井渫不食，为我心恻；可用汲，王明，并受其福。"],["六四","井甃，无咎。"],["九五","井冽，寒泉食。"],["上六","井收勿幕，有孚元吉。"]] },
+  { num:49, name:"革", title:"泽火革", lines:[1,0,1,1,1,0], guaCi:"革：己日乃孚，元亨，利贞。", desc:"泽中有火，改革变新。顺应时代，把握时机，除旧布新大吉。", yao:[["初九","巩用黄牛之革。"],["六二","己日乃革之，征吉，无咎。"],["九三","征凶，贞厉；革言三就，有孚。"],["九四","悔亡，有孚改命，吉。"],["九五","大人虎变，未占有孚。"],["上六","君子豹变，小人革面；征凶，居贞吉。"]] },
+  { num:50, name:"鼎", title:"火风鼎", lines:[0,1,1,1,0,1], guaCi:"鼎：元吉，亨。", desc:"木上有火，稳固之象。革故鼎新，文明鼎盛，大吉大利。", yao:[["初六","鼎颠趾，利出否；得妾以其子，无咎。"],["九二","鼎有实，我仇有疾，不我能即，吉。"],["九三","鼎耳革，其行塞。雉膏不食；方雨亏悔，终吉。"],["九四","鼎折足，覆公餗，其形渥，凶。"],["六五","鼎黄耳，金铉，利贞。"],["上九","鼎玉铉，大吉，无不利。"]] },
+  { num:51, name:"震", title:"震为雷", lines:[1,0,0,1,0,0], guaCi:"震：亨，震来虩虩，笑言哑哑。", desc:"洊雷，雷震之象。恐惧修省，惊后得安，终致欢笑。", yao:[["初九","震来虩虩，后笑言哑哑，吉。"],["六二","震来厉，亿丧贝，跻于九陵，勿逐，七日得。"],["六三","震苏苏，震行无眚。"],["九四","震遂泥。"],["六五","震往来，厉；亿无丧，有事。"],["上六","震索索，视矍矍，征凶。震不于其躬，于其邻，无咎。婚媾有言。"]] },
+  { num:52, name:"艮", title:"艮为山", lines:[0,0,1,0,0,1], guaCi:"艮：艮其背，不获其身，无咎。", desc:"兼山，止而知止。适可而止，安守本分，静思笃行。", yao:[["初六","艮其趾，无咎，利永贞。"],["六二","艮其腓，不拯其随，其心不快。"],["九三","艮其限，列其夤，厉熏心。"],["六四","艮其身，无咎。"],["六五","艮其辅，言有序，悔亡。"],["上九","敦艮，吉。"]] },
+  { num:53, name:"渐", title:"风山渐", lines:[0,0,1,0,1,1], guaCi:"渐：女归吉，利贞。", desc:"山上有木，循序渐进。步步为营，渐进之道，方能长久。", yao:[["初六","鸿渐于干；小子厉，有言，无咎。"],["六二","鸿渐于磐，饮食衎衎，吉。"],["九三","鸿渐于陆，夫征不复，妇孕不育，凶；利御寇。"],["六四","鸿渐于木，或得其桷，无咎。"],["九五","鸿渐于陵，妇三岁不孕；终莫之胜，吉。"],["上九","鸿渐于陆，其羽可用为仪，吉。"]] },
+  { num:54, name:"归妹", title:"雷泽归妹", lines:[1,1,0,1,0,0], guaCi:"归妹：征凶，无攸利。", desc:"泽上有雷，情感婚嫁之事。需慎重考虑，顺应自然，勿强求。", yao:[["初九","归妹以娣，跛能履，征吉。"],["九二","眇能视，利幽人之贞。"],["六三","归妹以须，反归以娣。"],["九四","归妹愆期，迟归有时。"],["六五","帝乙归妹，其君之袂，不如其娣之袂良；月几望，吉。"],["上六","女承筐，无实；士刲羊，无血。无攸利。"]] },
+  { num:55, name:"丰", title:"雷火丰", lines:[1,0,1,1,0,0], guaCi:"丰：亨，王假之，勿忧，宜日中。", desc:"雷电皆至，丰盛之象。把握鼎盛时期，居安思危。", yao:[["初九","遇其配主，虽旬无咎，往有尚。"],["六二","丰其蔀，日中见斗。往得疑疾，有孚发若，吉。"],["九三","丰其沛，日中见沬；折其右肱，无咎。"],["九四","丰其蔀，日中见斗，遇其夷主，吉。"],["六五","来章，有庆誉，吉。"],["上六","丰其屋，蔀其家，窥其户，阒其无人，三岁不觌，凶。"]] },
+  { num:56, name:"旅", title:"火山旅", lines:[0,0,1,1,0,1], guaCi:"旅：小亨，旅贞吉。", desc:"山上有火，旅途漂泊。小心谨慎，轻装简从，守正待归。", yao:[["初六","旅琐琐，斯其所取灾。"],["六二","旅即次，怀其资，得童仆，贞。"],["九三","旅焚其次，丧其童仆，贞厉。"],["九四","旅于处，得其资斧，我心不快。"],["六五","射雉，一矢亡；终以誉命。"],["上九","鸟焚其巢，旅人先笑后号啕；丧牛于易，凶。"]] },
+  { num:57, name:"巽", title:"巽为风", lines:[0,1,1,0,1,1], guaCi:"巽：小亨，利有攸往，利见大人。", desc:"随风，柔顺深入。以柔克刚，随机应变，渗透影响。", yao:[["初六","进退，利武人之贞。"],["九二","巽在床下，用史巫纷若，吉，无咎。"],["九三","频巽，吝。"],["六四","悔亡，田获三品。"],["九五","贞吉，悔亡，无不利。无初有终。先庚三日，后庚三日，吉。"],["上九","巽在床下，丧其资斧，贞凶。"]] },
+  { num:58, name:"兑", title:"兑为泽", lines:[1,1,0,1,1,0], guaCi:"兑：亨，利贞。", desc:"丽泽，喜悦之象。以悦服人，和乐融融，朋友相聚。", yao:[["初九","和兑，吉。"],["九二","孚兑，吉，悔亡。"],["六三","来兑，凶。"],["九四","商兑未宁，介疾有喜。"],["九五","孚于剥，有厉。"],["上六","引兑。"]] },
+  { num:59, name:"涣", title:"风水涣", lines:[0,1,0,0,1,1], guaCi:"涣：亨，王假有庙，利涉大川。", desc:"风行水上，涣散凝聚。冰释前嫌，精诚团结，可渡大川。", yao:[["初六","用拯马壮，吉。"],["九二","涣奔其机，悔亡。"],["六三","涣其躬，无悔。"],["六四","涣其群，元吉；涣有丘，匪夷所思。"],["九五","涣汗其大号，涣王居，无咎。"],["上九","涣其血去逖出，无咎。"]] },
+  { num:60, name:"节", title:"水泽节", lines:[1,1,0,0,1,0], guaCi:"节：亨，苦节不可贞。", desc:"泽上有水，节制约束。适度而行，节而不苦，方能持久。", yao:[["初九","不出户庭，无咎。"],["九二","不出门庭，凶。"],["六三","不节若，则嗟若，无咎。"],["六四","安节，亨。"],["九五","甘节，吉。往有尚。"],["上六","苦节，贞凶，悔亡。"]] },
+  { num:61, name:"中孚", title:"风泽中孚", lines:[1,1,0,0,1,1], guaCi:"中孚：豚鱼吉，利涉大川，利贞。", desc:"泽上有风，诚信之道。内外皆诚，以诚感物，无往不利。", yao:[["初九","虞吉，有他不燕。"],["九二","鸣鹤在阴，其子和之；我有好爵，吾与尔靡之。"],["六三","得敌，或鼓或罢，或泣或歌。"],["六四","月几望，马匹亡，无咎。"],["九五","有孚挛如，无咎。"],["上九","翰音登于天，贞凶。"]] },
+  { num:62, name:"小过", title:"雷山小过", lines:[0,0,1,1,0,0], guaCi:"小过：亨，利贞，可小事，不可大事。", desc:"山上有雷，宜谨小慎微。小事过当，守正则吉。", yao:[["初六","飞鸟以凶。"],["六二","过其祖，遇其妣；不及其君，遇其臣，无咎。"],["九三","弗过防之，从或戕之，凶。"],["九四","无咎，弗过遇之；往厉必戒，勿用永贞。"],["六五","密云不雨，自我西郊；公弋取彼在穴。"],["上六","弗遇过之；飞鸟离之，凶，是谓灾眚。"]] },
+  { num:63, name:"既济", title:"水火既济", lines:[1,0,1,0,1,0], guaCi:"既济：亨小，利贞，初吉终乱。", desc:"水在火上，事已完成。看似圆满，居安思危，防微杜渐。", yao:[["初九","曳其轮，濡其尾，无咎。"],["六二","妇丧其茀，勿逐，七日得。"],["九三","高宗伐鬼方，三年克之；小人勿用。"],["六四","繻有衣袽，终日戒。"],["九五","东邻杀牛，不如西邻之禴祭，实受其福。"],["上六","濡其首，厉。"]] },
+  { num:64, name:"未济", title:"火水未济", lines:[0,1,0,1,0,1], guaCi:"未济：亨，小狐汔济，濡其尾。", desc:"火在水上，尚未成功。谨慎辨别，持续努力，终将济事。", yao:[["初六","濡其尾，吝。"],["九二","曳其轮，贞吉。"],["六三","未济，征凶，利涉大川。"],["九四","贞吉，悔亡；震用伐鬼方，三年有赏于大国。"],["六五","贞吉，无悔；君子之光，有孚，吉。"],["上九","有孚于饮酒；无咎，濡其首，有孚失是。"]] }
+];
+const HEX_INDEX = {};
+HEXAGRAMS.forEach(h => { HEX_INDEX[h.lines.join('')] = h; });
+
+// ============================================================
+// 铜钱起卦法 · 正宗概率模型
+//
+// 每爻投三枚铜钱：正面(字)=阳=3，背面(花)=阴=2
+// 三枚之和：
+//   6 = 2+2+2 → 老阴 ●  (变爻，阴变阳)  概率 1/8
+//   7 = 3+2+2 → 少阳 —  (不变)          概率 3/8
+//   8 = 3+3+2 → 少阴 -- (不变)          概率 3/8
+//   9 = 3+3+3 → 老阳 ○  (变爻，阳变阴)  概率 1/8
+// ============================================================
+const LINE_LABEL = { 6:'老阴 ●', 7:'少阳 —', 8:'少阴 --', 9:'老阳 ○' };
+const LINE_NAMES = ['初爻','二爻','三爻','四爻','五爻','上爻'];
+
+function throwCoin() { return Math.random() < 0.5 ? 3 : 2; }
+function castOneLine() { return throwCoin() + throwCoin() + throwCoin(); }
+
+// 爻值 → 本卦阴阳：7少阳/9老阳 = 阳(1)；6老阴/8少阴 = 阴(0)
+function toYin(v) { return (v === 7 || v === 9) ? 1 : 0; }
+
+// 变爻：老阳→阴，老阴→阳，少阴少阳不变
+function toChanged(v) {
+  if (v === 9) return 0;
+  if (v === 6) return 1;
+  return toYin(v);
+}
+
+// 查卦（找不到则返回null）
+function findHex(linesArr) {
+  return HEX_INDEX[linesArr.join('')] || null;
+}
+
+// ============================================================
+// 问题意图分析 → 个性化引导语 + AI主题提示
+// ============================================================
+const INTENT_MAP = [
+  { keys:['事业','工作','职场','升职','晋升','跳槽','创业','生意','公司','项目','前途','职位','老板','同事','辞职'],
+    theme:'career', intro:'仕途问卦，乾坤自有进退之机', color:'#e8c56a',
+    hint:'求卦者问的是事业仕途，请从进退时机、官运贵人、职场格局方面给出指引。' },
+  { keys:['感情','爱情','恋爱','姻缘','婚姻','结婚','分手','复合','告白','表白','喜欢','爱','男友','女友','伴侣','相亲','追','对象'],
+    theme:'love', intro:'情缘问卦，阴阳感应自有定数', color:'#e8906a',
+    hint:'求卦者问的是感情姻缘，请从阴阳相感、缘分深浅、时机把握方面给出指引。' },
+  { keys:['钱','财','投资','股票','基金','买','卖','借钱','债','财运','赚钱','收入','生意','合同','项目'],
+    theme:'money', intro:'财帛问卦，得失取舍自有乾坤', color:'#8fdd8f',
+    hint:'求卦者问的是财帛钱财，请从聚散得失、财运时机、风险取舍方面给出指引。' },
+  { keys:['健康','身体','病','生病','医','手术','康复','养生','检查','疾病'],
+    theme:'health', intro:'身体问卦，阴阳调和方得康泰', color:'#87ceeb',
+    hint:'求卦者问的是身体健康，请从阴阳调和、扶正祛邪、调养之道方面给出指引。' },
+  { keys:['搬家','出行','旅行','出发','去','移居','方向','地方','城市','迁移'],
+    theme:'travel', intro:'行止问卦，方位吉凶卦中自现', color:'#dda0dd',
+    hint:'求卦者问的是出行方向，请从行止方位、出行时机、吉凶方向方面给出指引。' },
+  { keys:['学习','考试','读书','升学','学业','成绩','考研','高考','留学','备考'],
+    theme:'study', intro:'学业问卦，文昌星位自有启示', color:'#f0e68c',
+    hint:'求卦者问的是学业进修，请从积累精进、考试时机、文昌方位方面给出指引。' },
+];
+
+function analyzeIntent(q) {
+  const matched = INTENT_MAP.filter(p => p.keys.some(k => q.includes(k)));
+  if (matched.length === 1) return matched[0];
+  return { theme:'general', intro:'心有所惑，天机为您指点迷津', color:'#c9952a',
+           hint:'请结合问题背景，以易理给出贴心而具体的指引。' };
+}
+
+// ============================================================
+// 粒子
+// ============================================================
+(function createParticles() {
+  const c = document.getElementById('particles');
+  for (let i = 0; i < 25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `left:${Math.random()*100}%;width:${1+Math.random()*2}px;height:${1+Math.random()*2}px;--drift:${(Math.random()-0.5)*100}px;animation-duration:${8+Math.random()*15}s;animation-delay:${Math.random()*15}s;opacity:${0.2+Math.random()*0.5}`;
+    c.appendChild(p);
+  }
+})();
+
+// ============================================================
+// 铜钱动画：逐爻显示
+// ============================================================
+function renderCoinRow(lineResults, revealIdx) {
+  const container = document.getElementById('yarrowContainer');
+  container.innerHTML = '';
+
+  // 反推三枚铜钱的一种可能组合（仅用于展示）
+  const COMBOS = { 6:[[2,2,2]], 7:[[3,2,2],[2,3,2],[2,2,3]], 8:[[3,3,2],[3,2,3],[2,3,3]], 9:[[3,3,3]] };
+
+  for (let i = 0; i <= revealIdx; i++) {
+    const val = lineResults[i];
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:12px;';
+
+    // 爻位标签
+    const lbl = document.createElement('span');
+    lbl.style.cssText = 'color:rgba(201,149,42,0.55);font-size:0.72rem;letter-spacing:0.1em;width:28px;text-align:right;flex-shrink:0;';
+    lbl.textContent = LINE_NAMES[i];
+    row.appendChild(lbl);
+
+    // 三枚铜钱
+    const combo = COMBOS[val][Math.floor(Math.random() * COMBOS[val].length)];
+    const coinsWrap = document.createElement('div');
+    coinsWrap.style.cssText = 'display:flex;gap:7px;';
+    combo.forEach(cv => {
+      const coin = document.createElement('div');
+      const yang = cv === 3;
+      coin.style.cssText = `width:24px;height:24px;border-radius:50%;background:${yang?'radial-gradient(circle at 38% 35%,#f5d878,#b87c1a)':'radial-gradient(circle at 38% 35%,#7a6a4a,#3a2a0a)'};border:1px solid ${yang?'#e8c56a':'#5a4a2a'};display:flex;align-items:center;justify-content:center;font-size:8px;color:${yang?'#5a3000':'#c9a060'};box-shadow:0 2px 6px rgba(0,0,0,0.5),inset 0 1px 2px rgba(255,255,255,0.15);`;
+      coin.textContent = yang ? '字' : '花';
+      coinsWrap.appendChild(coin);
+    });
+    row.appendChild(coinsWrap);
+
+    // 爻值标签
+    const moving = val === 6 || val === 9;
+    const resLbl = document.createElement('span');
+    resLbl.style.cssText = `font-size:0.78rem;letter-spacing:0.05em;color:${moving?'#e87a5a':'rgba(201,149,42,0.75)'};`;
+    resLbl.textContent = LINE_LABEL[val] + (moving ? ' ✦' : '');
+    row.appendChild(resLbl);
+
+    container.appendChild(row);
+  }
+}
+
+// ============================================================
+// 主起卦流程
+// ============================================================
+async function castHexagram() {
+  const question = document.getElementById('questionInput').value.trim();
+  if (!question) {
+    const ta = document.getElementById('questionInput');
+    ta.focus();
+    ta.style.borderColor = 'rgba(180,40,40,0.7)';
+    ta.style.boxShadow = '0 0 16px rgba(180,40,40,0.2)';
+    setTimeout(() => { ta.style.borderColor = 'rgba(201,149,42,0.2)'; ta.style.boxShadow = ''; }, 1800);
+    return;
+  }
+
+  // 分析意图
+  const intent = analyzeIntent(question);
+
+  // 显示起卦遮罩
+  const overlay = document.getElementById('castingOverlay');
+  document.getElementById('yarrowContainer').innerHTML = '';
+  document.getElementById('castingStatusText').textContent = '虔心起卦，天机感应中……';
+  overlay.classList.add('active');
+  document.getElementById('castBtn').disabled = true;
+
+  // ★ 铜钱起卦：逐爻投掷，真实概率
+  const lineResults = [];
+  for (let i = 0; i < 6; i++) {
+    await new Promise(r => setTimeout(r, 120));
+    lineResults.push(castOneLine());
+    renderCoinRow(lineResults, i);
+    document.getElementById('castingStatusText').textContent = `正在起${LINE_NAMES[i]}……（${i+1}/6）`;
+    await new Promise(r => setTimeout(r, 420));
+  }
+
+  document.getElementById('castingStatusText').textContent = '卦象已成，天机显现……';
+  await new Promise(r => setTimeout(r, 900));
+
+  // ★ 构建本卦
+  const origLines = lineResults.map(toYin);
+  const mainHex   = findHex(origLines);
+
+  // ★ 构建变卦
+  const changedLines = lineResults.map(toChanged);
+  const movingIdxs   = lineResults.reduce((acc, v, i) => { if (v===6||v===9) acc.push(i); return acc; }, []);
+  const sameLines    = origLines.join('') === changedLines.join('');
+  const changedHex   = (movingIdxs.length > 0 && !sameLines) ? findHex(changedLines) : null;
+
+  if (!mainHex) {
+    // 极罕见的fallback（理论上不应触发）
+    overlay.classList.remove('active');
+    alert('起卦出错，请重试');
+    document.getElementById('castBtn').disabled = false;
+    return;
+  }
+
+  overlay.classList.remove('active');
+
+  // 淡化问题卡
+  const qCard = document.getElementById('questionCard');
+  qCard.style.opacity = '0.4';
+  qCard.style.pointerEvents = 'none';
+
+  // 渲染结果
+  displayResult(mainHex, changedHex, lineResults, movingIdxs, intent, question);
+
+  // 调用AI解读
+  setTimeout(() => fetchAI(mainHex, changedHex, lineResults, movingIdxs, intent, question), 350);
+}
+
+// ============================================================
+// 渲染卦象 & 变卦
+// ============================================================
+function displayResult(mainHex, changedHex, lineResults, movingIdxs, intent, question) {
+  // 个性化引导语
+  const badge = document.getElementById('intentBadge');
+  badge.textContent = `「${question.slice(0,20)}${question.length>20?'…':''}」· ${intent.intro}`;
+  badge.style.color = intent.color;
+  badge.style.borderColor = intent.color + '44';
+  badge.style.display = 'block';
+
+  // 本卦
+  document.getElementById('hexNumber').textContent = `第 ${mainHex.num} 卦`;
+  document.getElementById('hexName').textContent = mainHex.name;
+  document.getElementById('hexTitle').textContent = mainHex.title;
+  document.getElementById('hexSymbolBg').textContent = mainHex.name;
+
+  // 爻线（含动爻高亮）
+  const linesEl = document.getElementById('hexLines');
+  linesEl.innerHTML = '';
+  // 注意：易经爻线从下往上排列，index 0 = 初爻（最下）
+  // 我们用 column-reverse flex，所以 append 顺序是 0→5，显示是 5在上
+  for (let i = 0; i < 6; i++) {
+    const moving = movingIdxs.includes(i);
+    const yang = mainHex.lines[i] === 1;
+    const lineEl = document.createElement('div');
+    lineEl.className = 'hex-line';
+    lineEl.style.animationDelay = `${(5-i) * 0.12}s`;
+
+    if (yang) {
+      const bar = document.createElement('div');
+      bar.className = 'line-bar' + (moving ? ' moving' : '');
+      lineEl.appendChild(bar);
+    } else {
+      const b1 = document.createElement('div');
+      b1.className = 'line-bar broken' + (moving ? ' moving' : '');
+      const gap = document.createElement('div');
+      gap.style.cssText = 'width:12px;flex-shrink:0;';
+      const b2 = document.createElement('div');
+      b2.className = 'line-bar broken' + (moving ? ' moving' : '');
+      lineEl.appendChild(b1);
+      lineEl.appendChild(gap);
+      lineEl.appendChild(b2);
+    }
+
+    if (moving) {
+      const dot = document.createElement('span');
+      dot.className = 'moving-dot';
+      dot.title = LINE_LABEL[lineResults[i]];
+      lineEl.appendChild(dot);
+      // 动爻类型标注
+      const tag = document.createElement('span');
+      tag.style.cssText = 'font-size:0.65rem;color:#e87a5a;margin-left:4px;letter-spacing:0.05em;';
+      tag.textContent = lineResults[i]===9 ? '老阳○' : '老阴●';
+      lineEl.appendChild(tag);
+    }
+
+    linesEl.appendChild(lineEl);
+  }
+
+  // 变卦
+  const changedSection = document.getElementById('changedHexSection');
+  if (changedHex) {
+    document.getElementById('changedHexName').textContent = changedHex.name;
+    document.getElementById('changedHexTitle').textContent = changedHex.title;
+    document.getElementById('movingCount').textContent = movingIdxs.length;
+
+    const cLinesEl = document.getElementById('changedHexLines');
+    cLinesEl.innerHTML = '';
+    for (let i = 0; i < 6; i++) {
+      const el = document.createElement('div');
+      el.className = 'hex-line-sm';
+      const wasMoving = movingIdxs.includes(i);
+      if (changedHex.lines[i] === 1) {
+        const b = document.createElement('div');
+        b.className = 'line-bar-sm' + (wasMoving ? ' changed' : '');
+        el.appendChild(b);
+      } else {
+        const b1 = document.createElement('div');
+        b1.className = 'line-bar-sm broken-sm' + (wasMoving ? ' changed' : '');
+        const g = document.createElement('div');
+        g.style.cssText = 'width:8px';
+        const b2 = document.createElement('div');
+        b2.className = 'line-bar-sm broken-sm' + (wasMoving ? ' changed' : '');
+        el.appendChild(b1); el.appendChild(g); el.appendChild(b2);
+      }
+      cLinesEl.appendChild(el);
+    }
+    changedSection.style.display = 'block';
+  } else {
+    changedSection.style.display = 'none';
+  }
+
+  // 展示结果区
+  const result = document.getElementById('result');
+  result.classList.add('show');
+  result.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+// ============================================================
+// AI 解读（带完整上下文）
+// ============================================================
+async function fetchAI(mainHex, changedHex, lineResults, movingIdxs, intent, question) {
+  // 取某一爻的《周易》古本爻辞原文（含正确的初九/六二……爻名，非泛称"初爻"）
+  const yaoRef = (hex, i) => `${hex.yao[i][0]}：「${hex.yao[i][1]}」`;
+
+  // 乾坤两卦六爻俱动时，古法不取各爻辞，改用"用九""用六"断之
+  const allMoving  = movingIdxs.length === 6;
+  const useYongText = allMoving && mainHex.yong ? mainHex.yong : null;
+
+  const movingDesc = movingIdxs.length > 0
+    ? (useYongText
+        ? `六爻俱动，按《周易》占例，${mainHex.name}卦六爻全变时不取各爻爻辞，改用「${useYongText[0]}」辞断之：「${useYongText[1]}」。${changedHex ? '变卦为《' + changedHex.title + '》，可参其卦辞走向。' : ''}`
+        : `本卦有 ${movingIdxs.length} 个动爻，其爻辞原文如下——${movingIdxs.map(i => yaoRef(mainHex, i)).join('；')}。解读必须紧扣以上动爻的原文字面展开，不可只讲爻位、不讲爻辞。${changedHex ? '阴阳转化，变卦为《' + changedHex.title + '》，需兼论变卦走向。' : '动爻虽存，变卦与本卦相同，以本卦为重。'}`)
+    : '本卦无动爻，卦象稳定，以本卦卦义直接论断。';
+
+  const prompt = `你是一位精通《周易》的占卜大师，断卦精准直接，从不说模棱两可的场面话。你的解读要让求卦者感到"这是在说我，而且说到了我自己都没想透的地方"，而不是"这话放谁身上都适用"。
+
+若求卦者所问涉及时事、行情、近期动态等需要最新信息才能准确解读的内容（如股市、时局、赛事、天气等），请先用网络搜索获取当下真实情况，再结合卦象作答；若问题是关于个人情感、人生抉择等不需查证事实的内容，则无需搜索，直接以易理作答。
+
+【求卦者的问题】「${question}」
+【问题领域提示】${intent.hint}
+
+【铜钱起卦结果（初爻→上爻，括号内为该爻在本卦中的爻名）】
+${lineResults.map((v,i) => `${LINE_NAMES[i]}（${mainHex.yao[i][0]}）：${LINE_LABEL[v]}${(v===6||v===9)?' ← 动爻，原文「'+mainHex.yao[i][1]+'」':''}`).join('\n')}
+
+【本卦】第${mainHex.num}卦《${mainHex.title}》
+卦辞：「${mainHex.guaCi}」
+卦义：${mainHex.desc}
+${changedHex ? `【变卦】《${changedHex.title}》\n卦辞：「${changedHex.guaCi}」` : ''}
+【动爻情况】${movingDesc}
+
+【断卦要求——请严格遵守，这决定了解读的质量】
+1. 先在心里从问题「${question}」中揪出一个具体的细节、矛盾或没说出口的顾虑，整个解读都要扣住这一点展开，不要泛泛而谈问题所属的大类。
+2. 必须给出明确判断（吉/凶/宜/不宜/进/退），不要用"因人而异""需要自己判断"这类和稀泥的话来两头讨好。若卦象显凶显阻（如否、剥、蹇、困等），如实指出，不要为了讨喜而软化。
+3. 严禁使用以下空洞套话或与之等价的表达："顺其自然""保持耐心""相信自己""量力而行""三思而后行""脚踏实地""量入为出""不忘初心""静待时机"（除非卦象本身就是此意，且需具体说明"为何此刻该静待"，而非泛泛重复）。
+4. 建议部分不要给"正确的废话"，而要给出求卦者大概率没想到、但站在卦象逻辑上站得住脚的具体角度——哪怕这个角度听起来有点反直觉。若卦象指向的是与常识相反的方向（比如常理说该进、卦象却说该退），要明确说出这种反差，并解释卦理依据。
+5. 语言可以文白夹杂，但每一句都要言之有物，删掉可以套用在任何问题上的句子。
+6. 若本卦有动爻（见【动爻情况】），解读中必须至少引用一次动爻爻辞的原文字句（如"九三：君子终日乾乾"），并具体说明这句两千多年前的爻辞，字面对应着求卦者问题里的哪一个具体情境或心理状态——不可只提爻位、不提原文，也不可引而不用、引完就丢开不管。
+
+请严格按照以下格式输出，每段用对应分隔符包裹，禁止在分隔符外输出任何文字：
+
+GUACI_START
+（针对「${mainHex.guaCi}」，结合求卦者的问题「${question}」，用3句话解读卦辞的深层含义，点出此卦与此问的内在呼应，须扣住问题中的具体细节而非泛泛而谈）
+GUACI_END
+
+XIANGYI_START
+（描述《${mainHex.title}》的天地象义与阴阳结构，${movingIdxs.length>0 ? (useYongText ? `重点阐述"${useYongText[0]}"（原文：「${useYongText[1]}」）六爻俱动之变的意义` : '重点阐述'+movingIdxs.map(i=>mainHex.yao[i][0]).join('、')+'（原文：'+movingIdxs.map(i=>'「'+mainHex.yao[i][1]+'」').join('、')+'）动爻的变化意义，须扣住爻辞原文本身的意象展开') : '阐明静卦格局下的稳定之道'}${changedHex ? '，并说明向《'+changedHex.title+'》转化的趋势' : ''}，语言典雅而有画面感）
+XIANGYI_END
+
+ANSWER_START
+（直接回应「${question}」：给出明确的吉凶判断和方向判断，附具体的时间感，不要回避不利的结论。若卦象走向和常识直觉相反，请明确指出这个反差并说明理由，让求卦者感受到卦象在为他/她个人作答，100-150字）
+ANSWER_END
+
+ADVICE_START
+（给出3条建议，每条以"一、""二、""三、"开头，须是结合本卦${changedHex?'及变卦':''}爻象推出的具体角度，其中至少1条要是求卦者大概率没想到的视角，而非任何人都能说出的常识建议，每条30-45字）
+ADVICE_END`;
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-5',
+        max_tokens: 2200,
+        thinking: { type: 'disabled' },
+        tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 3 }],
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!res.ok) {
+      // 接口本身返回了非 2xx 状态码（如 404 说明 /api/chat 这个后端接口不存在，
+      // 500/502 说明后端或上游报错）——先把状态码和响应体打到控制台，方便定位。
+      const errBody = await res.text().catch(() => '');
+      console.error('【调试】/api/chat 返回非正常状态码', res.status, errBody);
+      throw new Error(`接口返回状态码 ${res.status}`);
+    }
+
+    const data = await res.json();
+
+    // 检查API层面的错误（如过载、余额不足等）；不同后端包装错误的字段可能不同，两种都兜底判断
+    if (data.type === 'error' || data.error) {
+      console.error('【调试】API返回错误对象', data);
+      throw new Error((data.error && (data.error.message || data.error)) || 'API错误');
+    }
+
+    // 加入web_search后，content里会混有tool_use/tool_result/web_search_result等block
+    // 只提取 type==='text' 的block拼接，忽略其他类型
+    const text = (data.content || [])
+      .filter(b => b.type === 'text')
+      .map(b => b.text || '')
+      .join('\n');
+
+    // 容错：修复AI偶发的格式错误（END写成START等）
+    const fixText = (raw) => {
+      const tags = ['GUACI','XIANGYI','ANSWER','ADVICE'];
+      let t = raw;
+      tags.forEach(tag => {
+        // 若两个START之间没有END，把第二个START替换为END
+        const re = new RegExp(tag+'_START([\s\S]*?)'+tag+'_START');
+        t = t.replace(re, tag+'_START'+tag+'_END');
+      });
+      return t;
+    };
+    const fixedText = fixText(text);
+
+    const extract = (s, e) => {
+      const si = fixedText.indexOf(s), ei = fixedText.indexOf(e);
+      return (si !== -1 && ei > si) ? fixedText.slice(si + s.length, ei).trim() : null;
+    };
+
+    const guaCi   = extract('GUACI_START',   'GUACI_END');
+    const xiangYi = extract('XIANGYI_START', 'XIANGYI_END');
+    const answer  = extract('ANSWER_START',  'ANSWER_END');
+    const advice  = extract('ADVICE_START',  'ADVICE_END');
+
+    if (guaCi)   setFadeText('guaCiText',   guaCi);
+    if (xiangYi) setFadeText('xiangYiText', xiangYi);
+    if (answer)  setFadeText('answerText',  answer);
+    if (advice)  setFadeText('adviceText',  advice);
+
+    // 自动保存到历史记录
+    saveToHistory(question, mainHex, changedHex, movingIdxs, guaCi, xiangYi, answer, advice);
+
+    // 若全部为null，说明格式解析失败，用兜底；把原始返回打出来方便排查究竟是接口没返回内容、
+    // 还是返回了内容但不含约定的分隔符标签
+    if (!guaCi && !xiangYi && !answer && !advice) {
+      console.error('【调试】解析失败，原始 data：', data, '\n提取到的纯文本 text：', text);
+      throw new Error('解析失败');
+    }
+
+  } catch (err) {
+    console.warn('AI解读异常，使用卦象兜底', err);
+    setFadeText('guaCiText',  mainHex.guaCi + '——此卦辞道出天机，万事皆有定数，顺势而为方为正道。');
+    setFadeText('xiangYiText', mainHex.desc);
+    const fb_yaoNote = movingIdxs.length>0 ? `动爻${mainHex.yao[movingIdxs[0]][0]}曰「${mainHex.yao[movingIdxs[0]][1]}」，变化在即，宜顺势把握时机。` : '卦象静稳，宜守正待时，勿急躁冒进。';
+    setFadeText('answerText',  `就「${question}」而言，${mainHex.name}卦以${mainHex.title}之象示以启示：${fb_yaoNote}`);
+    const fb_advice = '一、保持内心平静，不为外物所扰；\n二、坚守正道，以诚信为本；\n三、蓄积能量，待时而动，勿强求。';
+    setFadeText('adviceText', fb_advice);
+    saveToHistory(question, mainHex, changedHex, movingIdxs, mainHex.guaCi, mainHex.desc, `${mainHex.name}卦指引：守正待时，可期吉果。`, fb_advice);
+  }
+}
+
+// ============================================================
+// 文字淡入动画
+// ============================================================
+function setFadeText(id, text) {
+  const el = document.getElementById(id);
+  el.style.opacity = '0';
+  el.style.transition = 'none';
+  el.innerHTML = '';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      el.style.transition = 'opacity 0.7s ease';
+      el.style.opacity = '1';
+      el.textContent = text;
+    });
+  });
+}
+
+// ============================================================
+// 重置
+// ============================================================
+function resetDivination() {
+  const result = document.getElementById('result');
+  result.classList.remove('show');
+
+  const qCard = document.getElementById('questionCard');
+  qCard.style.opacity = '1';
+  qCard.style.pointerEvents = 'auto';
+  document.getElementById('questionInput').value = '';
+  document.getElementById('castBtn').disabled = false;
+  document.getElementById('intentBadge').style.display = 'none';
+
+  const loadingHtml = (tip) => `<div class="ai-loading"><span>${tip}</span><div class="dot-loader"><span></span><span></span><span></span></div></div>`;
+  document.getElementById('guaCiText').innerHTML   = loadingHtml('正在推演');
+  document.getElementById('xiangYiText').innerHTML = loadingHtml('天机流转');
+  document.getElementById('answerText').innerHTML  = loadingHtml('卦象解读中');
+  document.getElementById('adviceText').innerHTML  = loadingHtml('指引显现');
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============================================================
+// 历史记录（localStorage）
+// ============================================================
+const HISTORY_KEY = 'iching_history';
+
+function saveToHistory(question, mainHex, changedHex, movingIdxs, guaCi, xiangYi, answer, advice) {
+  const record = {
+    id: Date.now(),
+    time: new Date().toLocaleString('zh-CN', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }),
+    question,
+    hexNum:   mainHex.num,
+    hexName:  mainHex.name,
+    hexTitle: mainHex.title,
+    changedName:  changedHex ? changedHex.name  : null,
+    changedTitle: changedHex ? changedHex.title : null,
+    movingCount:  movingIdxs.length,
+    guaCi:   guaCi  || '',
+    xiangYi: xiangYi|| '',
+    answer:  answer || '',
+    advice:  advice || '',
+  };
+  const list = getHistory();
+  list.unshift(record);
+  // 最多保存50条
+  if (list.length > 50) list.splice(50);
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+}
+
+function getHistory() {
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+
+function openHistory() {
+  renderHistory();
+  document.getElementById('historyPanel').classList.add('open');
+}
+
+function closeHistory() {
+  document.getElementById('historyPanel').classList.remove('open');
+}
+
+function clearHistory() {
+  if (!confirm('确定要清空所有问卦记录吗？')) return;
+  localStorage.removeItem(HISTORY_KEY);
+  renderHistory();
+}
+
+function renderHistory() {
+  const list = getHistory();
+  const container = document.getElementById('historyList');
+  if (list.length === 0) {
+    container.innerHTML = '<div class="history-empty">暂无问卦记录<br><br>起卦后记录将自动保存</div>';
+    return;
+  }
+  container.innerHTML = list.map((r, idx) => `
+    <div class="history-item" id="hitem${r.id}" onclick="toggleHistoryItem(${r.id})">
+      <div class="history-item-header">
+        <div>
+          <span class="history-hex-name">${r.hexName}</span>
+          <span style="font-size:0.8rem;color:rgba(201,149,42,0.5);margin-left:10px;letter-spacing:0.15em">${r.hexTitle}</span>
+          ${r.changedName ? `<span style="font-size:0.78rem;color:rgba(201,149,42,0.4);margin-left:8px">→ ${r.changedName}</span>` : ''}
+        </div>
+        <div class="history-date">${r.time}</div>
+      </div>
+      <div class="history-question">「${r.question}」</div>
+      <div class="history-tags">
+        <span class="history-tag">第${r.hexNum}卦</span>
+        ${r.movingCount > 0 ? `<span class="history-tag">${r.movingCount}个动爻</span>` : '<span class="history-tag">静卦</span>'}
+        ${r.changedName ? `<span class="history-tag">变卦·${r.changedTitle}</span>` : ''}
+      </div>
+      <div class="history-answer">
+        ${r.guaCi   ? `<div style="margin-bottom:10px"><span style="color:#c9952a;letter-spacing:0.2em;font-size:0.75rem">卦辞</span><br>${r.guaCi}</div>` : ''}
+        ${r.xiangYi ? `<div style="margin-bottom:10px"><span style="color:#c9952a;letter-spacing:0.2em;font-size:0.75rem">象义</span><br>${r.xiangYi}</div>` : ''}
+        ${r.answer ? `<div style="margin-bottom:10px"><span style="color:#c9952a;letter-spacing:0.2em;font-size:0.75rem">针对所问</span><br>${r.answer}</div>` : ''}
+        ${r.advice  ? `<div><span style="color:#c9952a;letter-spacing:0.2em;font-size:0.75rem">趋吉避凶</span><br>${r.advice}</div>`  : ''}
+      </div>
+      <div class="history-expand-hint">点击展开/收起详情</div>
+    </div>
+  `).join('');
+}
+
+function toggleHistoryItem(id) {
+  const el = document.getElementById('hitem' + id);
+  if (el) el.classList.toggle('expanded');
+}
+
+</script>
+</body>
+</html>
